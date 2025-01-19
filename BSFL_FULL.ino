@@ -19,6 +19,7 @@ char pass[] = "GOGOStartup24";
 #define relay4 33
 #define relay5 32
 #define relay6 14
+#define relay7 19
 
 #define DHTPIN 2
 #define DHTTYPE DHT22
@@ -30,6 +31,8 @@ WidgetLED LED3 (V11);
 WidgetLED LED4 (V12);
 WidgetLED LED5 (V13);
 WidgetLED LED6 (V14);
+WidgetLED LED7 (V15);
+
 
 Adafruit_SGP30 sgp;
 
@@ -86,7 +89,7 @@ void sendSensor()
     HTTPClient http;
 
     // Construct URL with sensor value
-    String url = "https://script.google.com/macros/s/AKfycbwtfXfizvRQtGe4FEvi_e4Aamyfkif3qpLGW1dJRCqtw6JnlqYmGRpz10SsaN2llucBBQ/exec?temp="+String(t)+"&hum="+String(h);
+    String url = "https://script.google.com/macros/s/AKfycbwtfXfizvRQtGe4FEvi_e4Aamyfkif3qpLGW1dJRCqtw6JnlqYmGRpz10SsaN2llucBBQ/exec?temp="+String(t)+"&hum="+String(h)+"&value="+String(sgp.eCO2);
 
     // Start HTTP request
     Serial.println("Making a request");
@@ -134,12 +137,14 @@ void setup()
   pinMode(relay4, OUTPUT); //พัดลมลดความชื้น
   pinMode(relay5, OUTPUT); //ปั๊มลม
   pinMode(relay6, OUTPUT); //หลอดไฟอบ
+  pinMode(relay7, OUTPUT); //หลอดไฟสแตนด์บาย
   digitalWrite(relay1, LOW);
   digitalWrite(relay2, LOW);  
   digitalWrite(relay3, LOW);
   digitalWrite(relay4, LOW);
   digitalWrite(relay5, LOW);
   digitalWrite(relay6, LOW);
+  digitalWrite(relay7, LOW);
 
  
  // Initialize Wi-Fi
@@ -270,6 +275,21 @@ BLYNK_WRITE(V7)
     LED6.off();
   }
 } 
+
+BLYNK_WRITE(V8)
+{
+  int pinValue = param.asInt();  
+  if (pinValue == 1) {
+    digitalWrite(relay7, HIGH);  
+    Serial.println("Relay is ON");
+    LED6.on();
+  } else {
+    digitalWrite(relay7, LOW);   
+    Serial.println("Relay is OFF");
+    LED6.off();
+  }
+} 
+
 
 void loop(){
   float h = dht.readHumidity();
